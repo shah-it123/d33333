@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script data-require="d3@3.4.6" data-semver="3.4.6" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    
+  </head>
+
+  <body>
+    <script src="script.js"></script>
+  </body>
+
+</html>
