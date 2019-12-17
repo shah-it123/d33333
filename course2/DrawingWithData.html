@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2019 by shah-it123 (http://jsbin.com/foruhur/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+  <script>
+    var w = 200;
+    var h = 100;
+    var padding = 2;
+    var dataset = [5,10,15,20,25];
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h)
+                ;
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+         .attr("x",function(d,i){return i * (w / dataset.length)})
+         .attr("y",0)
+         .attr("width",w / dataset.length - padding)
+         .attr("height",function(d){return d;})
+         ;  
+  </script>
+</body>
+</html>
+
+
+
+
+

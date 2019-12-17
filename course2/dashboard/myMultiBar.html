@@ -1,0 +1,330 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+</head>
+<body>
+    <script>
+dataset = [{"user_id":"AAAA0001","my_count":1,"sale_count":1,"lead_count":0}
+,{"user_id":"AAAA0002","my_count":6,"sale_count":5,"lead_count":2}
+,{"user_id":"AAAA0003","my_count":13,"sale_count":6,"lead_count":3}
+,{"user_id":"AAAA0004","my_count":11,"sale_count":12,"lead_count":4}
+,{"user_id":"AAAA0005","my_count":5,"sale_count":6,"lead_count":5}
+,{"user_id":"AAAA0006","my_count":6,"sale_count":10,"lead_count":6}
+,{"user_id":"AAAA0007","my_count":13,"sale_count":2,"lead_count":7}
+,{"user_id":"AAAA0008","my_count":11,"sale_count":0,"lead_count":8}
+,{"user_id":"AAAA0009","my_count":7,"sale_count":11,"lead_count":9}
+,{"user_id":"AAAA0010","my_count":1,"sale_count":7,"lead_count":10}
+,{"user_id":"AAAA0011","my_count":4,"sale_count":4,"lead_count":11}
+,{"user_id":"AAAA0012","my_count":15,"sale_count":8,"lead_count":12}
+,{"user_id":"AAAA0013","my_count":1,"sale_count":15,"lead_count":13}
+,{"user_id":"AAAA0014","my_count":8,"sale_count":1,"lead_count":14}
+,{"user_id":"AAAA0015","my_count":9,"sale_count":8,"lead_count":15}
+,{"user_id":"AAAA0016","my_count":4,"sale_count":11,"lead_count":16}
+,{"user_id":"AAAA0017","my_count":18,"sale_count":4,"lead_count":17}
+,{"user_id":"AAAA1234","my_count":6,"sale_count":12,"lead_count":1}
+,{"user_id":"ABHI12345","my_count":10,"sale_count":7,"lead_count":1}
+,{"user_id":"ABHI2188","my_count":1,"sale_count":4,"lead_count":1}
+,{"user_id":"BBBB1234","my_count":1,"sale_count":3,"lead_count":1}
+,{"user_id":"DDDD12345","my_count":7,"sale_count":10,"lead_count":1}
+,{"user_id":"DEEP1234","my_count":1,"sale_count":6,"lead_count":1}
+,{"user_id":"EEEE2188","my_count":1,"sale_count":5,"lead_count":1}
+,{"user_id":"QWER1234","my_count":10,"sale_count":5,"lead_count":1}
+,{"user_id":"ROHI1234","my_count":6,"sale_count":12,"lead_count":1}];
+
+// setup conventional margin, see http://bl.ocks.org/mbostock/3019563
+var barTooltip = d3.select("#barChart").append("div")   
+		    .attr("class", "tooltip")               
+		    .style("opacity", 0);
+
+var formatRatio = d3.format("%");            
+
+                    
+var margin =  {top: 20, right: 10, bottom: 20, left: 40};
+var marginOverview = {top: 30, right: 10, bottom: 20, left: 40};
+var selectorHeight = 40;
+var width = 500 - margin.left - margin.right;
+var height = 400 - margin.top - margin.bottom - selectorHeight;
+var heightOverview = 80 - marginOverview.top - marginOverview.bottom;
+
+
+console.log("width of bar " + width);
+var maxLength = d3.max(dataset.map(function(d){ return d.user_id.length}))
+var barWidth = maxLength * 7;
+console.log("barWidth "+barWidth);
+var numBars = Math.round(width/barWidth);
+console.log("numBars "+numBars);
+console.log("width"+width);
+var isScrollDisplayed = barWidth * dataset.length > width;
+
+// accessor functions for the 4 values
+var user_id = function(d) { return d.user_id; };
+var my_count = function(d) { return d.my_count; };
+var sale_count = function(d) { return d.sale_count; };
+var lead_count = function(d) { return d.lead_count; };
+var valueObject = function(d) { return [{name:"my_count", value:my_count(d)},{name:"sale_count", value: sale_count(d)}, {name: "lead_count", value: lead_count(d)}]; };
+
+var color = d3.scale.ordinal()
+  .domain(["my_count","sale_count","lead_count"])
+  .range(["#31a354","#3182bd","#e6550d"]);
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .2)
+    .domain(dataset.slice(0,numBars).map(function (d) { return d.user_id; })); // use the year for the xAxis
+
+var x1 = d3.scale.ordinal()
+    .domain(["my_count","sale_count","lead_count"])
+    .rangeRoundBands([0, x0.rangeBand()]);
+
+var y = d3.scale.linear()
+    .range([height, 0])
+    .domain([0, d3.max(dataset.map(my_count))]); // use the population for calculating the maximum value
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Count");
+
+var users = svg.selectAll(".user_id")
+    .data(dataset.slice(0,numBars))
+    .enter()
+  .append("g")
+    .attr("class", "user_id")
+    .attr("transform", function(d) { return "translate(" + x0(user_id(d)) + ",0)"; });
+
+users.selectAll("rect")
+    .data(valueObject)
+    .enter()
+  .append("rect")
+    .attr("width", x1.rangeBand())
+    .attr("x", function(d) { return x1(d.name); })
+    .attr("y", function(d) { return y(d.value); })
+    .attr("height", function(d) { return height - y(d.value); })
+    .attr("fill", function(d) { return color(d.name); });
+
+var legend = svg.selectAll(".legend")
+    .data(["my_count","sale_count","lead_count"])
+  .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+legend.append("rect")
+    .attr("x", width - 18)
+    .attr("width", 18)
+    .attr("height", 18)
+    .style("fill", color);
+
+legend.append("text")
+    .attr("x", width - 24)
+    .attr("y", 9)
+    .attr("dy", ".35em")
+    .style("text-anchor", "end")
+    .text(function(d) { return d; })
+
+if (isScrollDisplayed)
+    {
+    var xOverview = d3.scale.ordinal()
+                    .domain(dataset.map(user_id))
+                    .rangeBands([0, width], .2);
+
+    var xOverview1 = d3.scale.ordinal()
+            .domain(["my_count","sale_count","lead_count"])
+            .rangeRoundBands([0, xOverview.rangeBand()]);    
+
+    yOverview = d3.scale.linear().range([heightOverview, 0]);
+    yOverview.domain(y.domain());
+
+    var subBars = svg.selectAll('.sub')
+        .data(dataset)
+        .enter()
+        .append("g")
+        .attr("class","sub")
+        .attr("transform", function(d) { return "translate(" + xOverview(user_id(d)) + ",0)"; });
+        
+
+    subBars.selectAll("rect")
+        .data(valueObject)
+        .enter().append("rect")
+        .classed('subBar', true)
+        .attr("x", function(d) {return xOverview1(d.name);})
+        .attr("width", function(d) {return xOverview1.rangeBand()})
+        .attr("y", function(d) {
+        return height + heightOverview + yOverview(d.value)
+    })
+        .attr("height", function(d) {
+        return heightOverview - yOverview(d.value);
+    })
+
+    var displayed = d3.scale.quantize()
+                .domain([0, width])
+                .range(d3.range(dataset.length));
+
+    svg.append("rect")
+                .attr("transform", "translate(0, " + (height + margin.bottom) + ")")
+                .attr("class", "mover")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("height", selectorHeight)
+                .attr("width", Math.round(parseFloat(numBars * width)/dataset.length))
+                .attr("pointer-events", "all")
+                .attr("cursor", "ew-resize")
+                .call(d3.behavior.drag().on("drag", display));
+
+        
+                        
+
+    }
+
+    function display(){
+
+    }
+
+    </script>
+
+    <style>
+    .axis path,
+    .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+    }
+
+    svg{
+        height:500px;
+    }
+    </style>
+
+<style>
+            .y-axis path,
+            .y-axis line {
+                fill: none;
+                stroke: black;
+                shape-rendering: crispEdges;
+            }
+
+            .x-axis path, .x-axis line{
+            	display:none;
+
+            }
+            
+            svg {
+                transform-origin: 0 0;
+            }
+
+            .x-axis, .y-axis text {
+                font-family: sans-serif;
+                font-size: 10px;
+            }
+            
+            h2 {
+                font-family: 'Open Sans', sans-serif;
+                font-weight: 300;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+           div.tooltip {   
+                    position: absolute;
+                    max-width: 200px;
+                    height: auto;
+                    padding: 5px;
+                    background-color: white;
+                    -webkit-border-radius: 5px;
+                    -moz-border-radius: 5px;
+                    border-radius: 5px;
+                    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+                    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+                    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+                    pointer-events: none; /* MUI IMPORTANTE! */
+                    font-family: sans-serif;
+                    font-size:12px;
+            }
+
+            body {
+            	width: 800px;
+            	height: 850px;
+            }
+
+            #dashTitle {
+            	display: block;
+            	margin: auto;
+            	font-family: 'Open Sans', sans-serif;
+            }
+
+            #barChartLegend {
+            	overflow: visible;
+
+            }
+
+            .profitLabel {
+            	font-family: 'Open Sans', sans-serif;	
+            	font-size: 12px;
+            }
+
+
+    .subBar { 
+      fill: gray;
+      opacity: 0.5;
+    }
+    
+    .axis path,
+    .y-axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+    
+    .brush .extent {
+      stroke: #fff;
+      fill: steelblue;
+      fill-opacity: .25;
+      shape-rendering: crispEdges;
+    }
+    
+      rect.mover {
+                stroke: red;
+                stroke-opacity: .1;
+                fill: lightSteelBlue ;
+                fill-opacity: .5;
+            }
+    
+        .disable{
+            fill: #c0c0c0 !important;
+        }  
+    
+        .y-axis line{
+                    stroke: lightgray;
+                    stroke-opacity: 0.7;
+                    shape-rendering: crispEdges;
+                }  
+    
+    </style>
+</body>
+</html>

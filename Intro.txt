@@ -1,0 +1,23 @@
+D3 is a Javascript library
+    A core library  
+    With many satellite libraries
+    Referemced via a CDN (Content Delivery Network)
+D3 generates SVG (Scalable Vector Graphics is an Extensible Markup Language (XML))
+    Once generated, that SVG is entirely detachable from D3
+SVG is a vector format
+    with wide, deep,  and old support
+    In all major browsers
+We can draw graphics primitives with SVG
+    Text
+    Circles
+    Rectangles
+We can represent data with SVG primitives   
+    With circles using radius
+        Or, the square root of radius to preserve proportionality
+    Height or width on rectangles
+We can perform transformations on SVG elements
+    Like Scale and Rotate
+    Transforms are performed from transform origin
+        Which is, by default, the center of the canvas
+        We can take control of it
+            With the transform-origin attribute                        

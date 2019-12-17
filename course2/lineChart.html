@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2019 by shah-it123 (http://jsbin.com/foruhur/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3-selection-multi.v0.4.min.js"></script>
+  </head>
+<body>
+  <script>
+    var h = 350;
+    var w = 400;
+    
+    monthlySales = [
+      {"month":10,"sales":100},
+      {"month":20,"sales":130},
+      {"month":30,"sales":250},
+      {"month":40,"sales":300},
+      {"month":50,"sales":265},
+      {"month":60,"sales":225},
+      {"month":70,"sales":180},
+      {"month":80,"sales":120},
+      {"month":90,"sales":145},
+      {"month":100,"sales":130}
+    ];
+    
+    var lineFun = d3.line()
+      .x(function(d){return d.month*3;})
+      .y(function(d){return h-d.sales;})
+      .curve(d3.curveLinear);
+    
+    var svg = 
+        d3.select("body").append("svg").attrs({width:w,height:h});
+    
+    var viz = svg.append("path")
+      .attrs({
+        d:lineFun(monthlySales),
+        "stroke":"purple",
+        "stroke-width":2,
+        "fill":"none"
+      });
+    
+    //add labels
+    var labels = svg.selectAll("text")
+      .data(monthlySales)
+      .enter()
+      .append("text")
+      .text(function(d){return d.sales;})
+      .attrs({
+        x:function(d){return d.month*3-25;},
+        y:function(d){return h-d.sales;},
+        "font-size":"12px",
+        "font-family":"sans-serif",
+        "fill":"#666666",
+        "text-anchor":"start",
+        "dy":".35em",
+        "font-weight":function(d,i){
+          if(i===0 || i==monthlySales.length-1){
+            return "bold";
+          }else{
+            return "normal";
+          }
+        }
+      });
+  </script>
+<script id="jsbin-javascript">
+var w = 300;
+    var h = 100;
+    var padding = 2;
+    var dataset = [5,10,14,20,25];
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width",w)
+                .attr("height",h)
+                ;
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+        .attr({
+            x:function(d,i){return i * (w / dataset.length);},
+            y:function(d){return h - (d*4);},
+            width:w / dataset.length - padding,
+            height:function(d){return (d*4);},
+            fill:function(d){return "rgb(0,"+(d*10)+",0)";}
+    });
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

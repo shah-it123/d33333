@@ -1,0 +1,158 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="d3.js"></script>
+    <style>
+        svg{
+            width: 1000px;
+            height: 1000px;
+            transform-origin: 0 0;
+        }
+    </style>
+</head>
+<body>
+    <script>
+         d3.xml("data.xml").then(function(data){
+            var values = [];
+
+            for(var i = 0;i<data.children[0].children.length;i++){
+                values.push(parseInt(data.children[0].children[i].innerHTML))
+            }
+
+            renderCircles(values);
+        });
+
+           
+        
+        function renderCircles(values){
+            var initialX = 15;
+            var deltaX = 25;
+            var initialY = 15;
+            var deltaY = 25;
+
+            var currentX = initialX;
+            var currentY = initialY;
+
+            var svg = d3.select("body")
+                .append("svg")
+                .attr("transform","scale(8)")
+
+            var gCircles = svg.append("g");
+            gCircles.attr("class","circleGroup");
+
+            var circleElements = gCircles.selectAll("circle")
+                .data(values);
+
+            var textElements = gCircles.selectAll("text")        
+                .data(values);
+
+            circleElements
+                .enter()
+                .append("circle")
+                .attr("fill","red")
+                .attr("r",x => x)
+                .attr("cx",function(x){
+                    var currentValue = currentX;
+                    currentX += deltaX;
+                    return currentValue;
+                })
+                .attr("cy",currentY)
+                ;
+
+            //reset to draw the labels
+            currentX = currentX - values.length * deltaX;
+
+            textElements
+                .enter()
+                .append("text")
+                .text(x => x)
+                .attr("class","textLabel")
+                .attr("x",function(x){
+                    var currentValue = currentX;
+                    currentX += deltaX;
+                    return currentValue;
+                })
+                .attr("y",currentY)
+                .attr("dy",-3)
+                .attr("dx",-1)
+                .attr("font-size","3pt")
+                ;
+
+            currentX=initialX;
+            currentY += deltaY;
+
+
+            var onZoom = d3.zoom()
+            .on("zoom",zoomFunction);
+
+        onZoom(svg); 
+
+        function zoomFunction(){
+            gCircles.attr("transform",d3.event.transform);
+        }
+
+            var gRect = svg.append("g");
+            gRect.attr("class","rectangleGroup");
+
+            values.forEach(x=>drawRectangle(gRect,x));
+
+            currentX=initialX;
+            currentY += deltaY;
+
+            var gCirclesProp = svg.append("g");
+            gCirclesProp.attr("class","circlePropGroup");
+
+            values.forEach(x=>drawProportionalCircle(gCirclesProp,x));
+
+            function drawRectangle(gRect,radius){
+                gRect
+                    .append("rect")
+                    .attr("fill","red")
+                    .attr("width",5)
+                    .attr("height",radius)
+                    .attr("x",currentX)
+                    .attr("y",currentY)
+                    ;
+
+                gRect
+                    .append("text")
+                    .text(radius)
+                    .attr("fill","black")
+                    .attr("x",currentX)
+                    .attr("y",currentY)
+                    .attr("font-size","3pt")
+                    ;    
+
+                currentX+=deltaX;
+            }
+
+               
+
+            function drawProportionalCircle(gCirclesProp,radius){
+                gCirclesProp
+                    .append("circle")
+                    .attr("fill","red")
+                    .attr("r",Math.sqrt(radius) )
+                    .attr("cx",currentX)
+                    .attr("cy",currentY)
+                    ;
+
+                gCirclesProp
+                    .append("text")
+                    .text(radius)
+                    .attr("fill","black")
+                    .attr("x",currentX)
+                    .attr("y",currentY)
+                    .attr("font-size","3pt")
+                    ;    
+
+                currentX+=deltaX;
+            } 
+        }        
+    </script>
+</body>
+</html>

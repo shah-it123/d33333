@@ -1,0 +1,15 @@
+Lesser-used Methods
+    blob()
+    buffer()
+    html()
+    image()
+    svg()
+    text()
+    
+
+Text-oriented Data Formats
+    CSV()  - Comma-separated values
+    TSV()  - Tab-separated values
+    DSV()  - Delimeter-separated values 
+    JSON() 
+    XML()      
