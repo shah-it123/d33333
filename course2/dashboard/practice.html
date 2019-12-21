@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script data-require="d3@3.4.6" data-semver="3.4.6" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    
+  </head>
+
+  <body>
+    <script src="script.js"></script>
+  </body>
+
+</html>
+
+<script>
+var color = d3.scale.category20();
+
+var my_nodes = [{
+  "cluster": 0,
+  "x": 50,
+  "y": 50
+}, {
+  "cluster": 0,
+  "x": 100,
+  "y": 50
+}, {
+  "cluster": 1,
+  "x": 100,
+  "y": 100
+}];
+
+var vis = d3.select("body")
+  .append("svg")
+  .attr("width", 500)
+  .attr("height", 500);
+
+function update(){
+ nodes
+  .attr("cx", function(d) {
+    return d.x;
+  })
+  .attr("cy", function(d) {
+    return d.y;
+  })
+  .attr("r", 5)
+  .style("fill", function(d) {
+    return color(d.cluster)
+  });
+}
+
+var nodes = vis.selectAll("circle.node").data(my_nodes)
+  .enter()
+  .append("g")
+  .attr("class", "node")
+  .append("svg:circle");
+
+update();
+
+setTimeout(function(){
+  var new_nodes = [{"cluster": 0, "x": 50,  "y": 50},
+                   {"cluster": 2, "x": 100, "y": 50},
+                   {"cluster": 2, "x": 100, "y":100}];
+  nodes.data(new_nodes);
+  update();
+}, 2000);
+</script>

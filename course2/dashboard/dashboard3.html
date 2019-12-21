@@ -1,0 +1,233 @@
+<html>
+    <head>
+    	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    	<link href='style.css' rel='stylesheet' type='text/css'>
+        <script src="d3.v3.js" charset="utf-8"></script>   
+    </head>
+    <body>
+
+    	<div id="topChart" style="float: left; width: 800px;">
+	    	<svg id="barChart"></svg>
+	    </div>
+
+	    
+        
+
+
+    	<!-- build bar chart -->
+    	<script>
+
+    		var ds = [{"user_id":"AAAA0000","user_name":null,"lead_count":3},{"user_id":"AAAA0001","user_name":null,"lead_count":2},{"user_id":"AAAA0002","user_name":null,"lead_count":1},{"user_id":"AAAA0003","user_name":null,"lead_count":1},{"user_id":"AAAA0004","user_name":null,"lead_count":5},{"user_id":"AAAA0005","user_name":null,"lead_count":1},{"user_id":"AAAA0006","user_name":null,"lead_count":2},{"user_id":"AAAA0007","user_name":null,"lead_count":1},{"user_id":"AAAA0008","user_name":null,"lead_count":2},{"user_id":"AAAA0009","user_name":null,"lead_count":1},{"user_id":"AAAA0010","user_name":null,"lead_count":1},{"user_id":"AAAA0011","user_name":null,"lead_count":1},{"user_id":"AAAA0012","user_name":null,"lead_count":1},{"user_id":"AAAA0013","user_name":null,"lead_count":15},{"user_id":"AAAA0014","user_name":null,"lead_count":5},{"user_id":"AAAA0015","user_name":null,"lead_count":1},{"user_id":"AAAA0016","user_name":null,"lead_count":1},{"user_id":"AAAA0017","user_name":null,"lead_count":2},{"user_id":"clay","user_name":null,"lead_count":1},{"user_id":"daca2111","user_name":null,"lead_count":1},{"user_id":"rohi1234","user_name":null,"lead_count":6},{"user_id":"rohi1236","user_name":null,"lead_count":5}];
+	
+	
+	
+		
+		var barTooltip = d3.select("body").append("div")   
+		    .attr("class", "tooltip")               
+		    .style("opacity", 0);
+		
+		var formatRatio = d3.format("%");
+		
+		var margin = {top: 20, right: 10, bottom: 20, left: 40},
+            marginOverview = {top: 30, right: 10, bottom: 20, left: 40},
+            selectorHeight = 40,
+	    	width = 500 - margin.left - margin.right,
+	    	height = 200 - margin.top - margin.bottom - selectorHeight,
+            heightOverview = 80 - marginOverview.top - marginOverview.bottom,
+            maxLength = d3.max(ds.map(function(d){ return d.user_id.length})),
+            barWidth = maxLength * 7,
+            numBars = Math.round(width/barWidth),
+            isScrollDisplayed = barWidth * ds.length > width;
+       
+        console.log(isScrollDisplayed);
+		
+		var xscale = d3.scale.ordinal()
+            .domain(ds.slice(0,numBars).map(function (d) { return d.user_id; }))
+	    	.rangeRoundBands([0, width], .1); 
+		
+		var yscale = d3.scale.linear()
+        .domain([0, d3.max(ds, function (d) { return d.lead_count; })])
+	    	.range([height, 0]);
+		
+		var xAxis = d3.svg.axis()
+	    .scale(xscale)
+	    .orient("bottom");
+
+	var yAxis = d3.svg.axis()
+	    .scale(yscale)
+	    .orient("left")
+	    .tickFormat(d3.format("s"))
+	    .ticks(3);
+	
+	var minProfit = d3.min(ds, function(d){ return d.lead_count; });
+	var maxProfit = d3.max(ds, function(d){ return d.lead_count; });
+	
+	var color = d3.scale.quantize()
+		.domain([minProfit, maxProfit])							
+		.range(['rgb(165,15,21)','rgb(222,45,38)','rgb(251,106,74)','rgb(252,146,114)','rgb(252,187,161)','rgb(254,229,217)','rgb(186,186,186)','rgb(64,64,64)']);
+	
+	var chart = d3.select("#barChart")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom + selectorHeight)
+	  	.append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		  chart.append("g")
+		      .attr("class", "x-axis")
+		      .attr("transform", "translate(0," + height + ")")
+		      .call(xAxis);
+
+		  chart.append("g")
+		      .attr("class", "y-axis")
+		      .call(yAxis);
+
+        var bars = chart.append("g");    
+
+        bars.selectAll("#barChart")
+            .data(ds.slice(0, numBars), function (d) {return d.user_id; })
+			.enter().append("rect")
+			.attr("class", "bar")
+			.attr("x", function(d) { return xscale(d.user_id); })
+			.attr("y", function(d) { return yscale(d.lead_count); })
+			.attr("height", function(d) { return height - yscale(d.lead_count); })
+			.attr("width", xscale.rangeBand())
+			.style("fill", function(d) { return color(d.lead_count); })
+			.on("mouseover", function(d) {      
+
+                  barTooltip.transition()        
+                      .duration(500)      
+                      .style("opacity", .9);      
+
+                  var tip = "<strong>UserID:</strong> " + d.user_id + "<br/>";
+                  var tip = tip+"<strong>Leads:</strong> " + d.lead_count+ "<br/>";
+
+                  barTooltip.html(tip)  
+                      .style("left", (d3.event.pageX) + "px")     
+                      .style("top", (d3.event.pageY - 28) + "px");    
+              })                  
+              .on("mouseout", function(d) {       
+
+                  barTooltip.transition()        
+                      .duration(500)      
+                      .style("opacity", 0);   
+              });
+
+              if (isScrollDisplayed)
+{
+  var xOverview = d3.scale.ordinal()
+                  .domain(ds.map(function (d) { return d.user_id; }))
+                  .rangeBands([0, width], .2);
+  yOverview = d3.scale.linear().range([heightOverview, 0]);
+  yOverview.domain(yscale.domain());
+
+  var subBars = chart.selectAll('.subBar')
+      .data(ds)
+
+  subBars.enter().append("rect")
+      .classed('subBar', true)
+      .attr({
+          height: function(d) {
+              return heightOverview - yOverview(d.lead_count);
+          },
+          width: function(d) {
+              return xOverview.rangeBand()
+          },
+          x: function(d) {
+
+              return xOverview(d.user_id);
+          },
+          y: function(d) {
+              return height + heightOverview + yOverview(d.lead_count)
+          }
+      })
+
+  var displayed = d3.scale.quantize()
+              .domain([0, width])
+              .range(d3.range(ds.length));
+
+  chart.append("rect")
+              .attr("transform", "translate(0, " + (height + margin.bottom) + ")")
+              .attr("class", "mover")
+              .attr("x", 0)
+              .attr("y", 0)
+              .attr("height", selectorHeight)
+              .attr("width", Math.round(parseFloat(numBars * width)/ds.length))
+              .attr("pointer-events", "all")
+              .attr("cursor", "ew-resize")
+              .call(d3.behavior.drag().on("drag", display));
+}
+
+    function display () {
+        var x = parseInt(d3.select(this).attr("x")),
+            nx = x + d3.event.dx,
+            w = parseInt(d3.select(this).attr("width")),
+            f, nf, new_data, rects;
+
+        if ( nx < 0 || nx + w > width ) return;
+
+        d3.select(this).attr("x", nx);
+
+        f = displayed(x);
+        nf = displayed(nx);
+
+        if ( f === nf ) return;
+
+        new_data = ds.slice(nf, nf + numBars);
+
+        xscale.domain(new_data.map(function (d) { return d.user_id; }));
+        chart.select(".x.axis").call(xAxis);
+
+        rects = bars.selectAll("rect")
+        .data(new_data, function (d) {return d.user_id; });
+
+            rects.attr("x", function (d) { return xscale(d.user_id); });
+
+    // 	  rects.attr("transform", function(d) { return "translate(" + xscale(d.label) + ",0)"; })
+
+        rects.enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function (d) { return xscale(d.user_id); })
+        .attr("y", function (d) { return yscale(d.lead_count); })
+        .attr("width", xscale.rangeBand())
+        .attr("height", function (d) { return height - yscale(d.lead_count); });
+
+        rects.exit().remove();
+    };
+
+	
+		
+    	</script>
+
+        
+
+
+    </body>
+
+    <style>
+        svg {
+  font: 10px sans-serif;
+}
+
+
+  
+.subBar { 
+  fill: gray;
+  opacity: 0.5;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+
+  rect.mover {
+        stroke-opacity: .1;
+        fill: lightSteelBlue;
+        fill-opacity: .5;
+    }
+    </style>   
+</html>

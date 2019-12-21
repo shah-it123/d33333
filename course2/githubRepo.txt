@@ -1,0 +1,5 @@
+https://github.com/shah-it123/d3/blob/master/course2/MonthlySalesbyCategoryMultiple.json
+
+                        to
+                    get a blob
+https://api.github.com/repos/shah-it123/d3/contents/course2/MonthlySalesbyCategoryMultiple.json                        
